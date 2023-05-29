@@ -34,21 +34,30 @@ public class CommandApi implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull final CommandSender commandSender, @NotNull final Command command, @NotNull final String label, @NotNull final String[] args) {
         for (Object commandHandler : commandHandlers) {
+            commandSender.sendMessage("1");
             for (Method method : commandHandler.getClass().getDeclaredMethods()) {
+                commandSender.sendMessage("2");
                 if (method.isAnnotationPresent(CommandHandler.class)) {
+                    commandSender.sendMessage("3");
                     final CommandHandler annotation = method.getAnnotation(CommandHandler.class);
                     if (annotation.value().equalsIgnoreCase(command.getName())) {
+                        commandSender.sendMessage("4");
                         try {
                             if(method.isAnnotationPresent(CommandProperties.class)){
+                                commandSender.sendMessage("5");
                                 final CommandProperties commandProperties = method.getAnnotation(CommandProperties.class);
                                 if(commandProperties.type()== CommandProperties.CommandType.PLAYER&&commandSender instanceof Player){
+                                    commandSender.sendMessage("6");
                                     method.invoke(commandHandler, new CommandManager(commandSender, args, label, tabCompletions));
                                 }else if(commandProperties.type() == CommandProperties.CommandType.CONSOLE && !(commandSender instanceof Player)){
+                                    commandSender.sendMessage("7");
                                     method.invoke(commandHandler, new CommandManager(commandSender, args, label, tabCompletions));
                                 }else if(commandProperties.type()== CommandProperties.CommandType.UNIVERSAL){
+                                    commandSender.sendMessage("8");
                                     method.invoke(commandHandler, new CommandManager(commandSender, args, label, tabCompletions));
                                 }
                             }else {
+                                commandSender.sendMessage("9");
                                 method.invoke(commandHandler, new CommandManager(commandSender, args, label, tabCompletions));
                             }
                         } catch (IllegalAccessException | InvocationTargetException e) {
