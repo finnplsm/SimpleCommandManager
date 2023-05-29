@@ -4,6 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.InvocationTargetException;
@@ -36,9 +37,20 @@ public class CommandApi implements CommandExecutor, TabCompleter {
             for (Method method : commandHandler.getClass().getDeclaredMethods()) {
                 if (method.isAnnotationPresent(CommandHandler.class)) {
                     final CommandHandler annotation = method.getAnnotation(CommandHandler.class);
-                    if (annotation.label().equalsIgnoreCase(command.getName())) {
+                    if (annotation.value().equalsIgnoreCase(command.getName())) {
                         try {
-                            method.invoke(commandHandler, new CommandManager(commandSender, args, label, tabCompletions));
+                            if(method.isAnnotationPresent(CommandProperties.class)){
+                                final CommandProperties commandProperties = method.getAnnotation(CommandProperties.class);
+                                if(commandProperties.type()== CommandProperties.CommandType.PLAYER&&commandSender instanceof Player){
+                                    method.invoke(commandHandler, new CommandManager(commandSender, args, label, tabCompletions));
+                                }else if(commandProperties.type() == CommandProperties.CommandType.CONSOLE && !(commandSender instanceof Player)){
+                                    method.invoke(commandHandler, new CommandManager(commandSender, args, label, tabCompletions));
+                                }else if(commandProperties.type()== CommandProperties.CommandType.UNIVERSAL){
+                                    method.invoke(commandHandler, new CommandManager(commandSender, args, label, tabCompletions));
+                                }
+                            }else {
+                                method.invoke(commandHandler, new CommandManager(commandSender, args, label, tabCompletions));
+                            }
                         } catch (IllegalAccessException | InvocationTargetException e) {
                             e.printStackTrace();
                         }

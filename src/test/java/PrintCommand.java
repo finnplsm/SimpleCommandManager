@@ -3,7 +3,7 @@ import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
 public class PrintCommand implements Command {
-    @CommandHandler(label = "print")
+    @CommandHandler("print")
     @CommandProperties(type = CommandProperties.CommandType.PLAYER, usage = "/print", aliases = {"pr", "printmessage"})
     private void onCommand(@NotNull final CommandManager commandManager){
         final String label=commandManager.getLabel();

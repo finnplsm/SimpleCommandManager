@@ -52,11 +52,11 @@ public class SimpleCommandManager {
                 if (!method.isAnnotationPresent(CommandHandler.class) ||
                         method.getParameterTypes().length != 1) continue;
                 getCommandApi().registerCommandHandler(command.getClass());
-                PluginCommand pluginCommand=Objects.requireNonNull(getPlugin().getServer().getPluginCommand(method.getAnnotation(CommandHandler.class).label()));
+                PluginCommand pluginCommand=Objects.requireNonNull(getPlugin().getServer().getPluginCommand(method.getAnnotation(CommandHandler.class).value()));
                 pluginCommand.setExecutor(getCommandApi());
                 pluginCommand.setTabCompleter(getCommandApi());
                 if (method.isAnnotationPresent(CommandProperties.class)){
-                    pluginCommand.setUsage(method.getAnnotation(CommandProperties.class).usage().replaceAll("%label%",method.getAnnotation(CommandHandler.class).label()));
+                    pluginCommand.setUsage(method.getAnnotation(CommandProperties.class).usage().replaceAll("%label%",method.getAnnotation(CommandHandler.class).value()));
                     pluginCommand.setPermission(method.getAnnotation(CommandProperties.class).permission());
                     pluginCommand.setAliases(Arrays.asList(method.getAnnotation(CommandProperties.class).aliases()));
                 }
