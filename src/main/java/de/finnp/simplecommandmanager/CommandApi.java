@@ -1,27 +1,24 @@
 package de.finnp.simplecommandmanager;
 
+import de.finnp.simplecommandmanager.annotation.CommandHandler;
+import de.finnp.simplecommandmanager.annotation.CommandProperties;
+import de.finnp.simplecommandmanager.annotation.TabCompletion;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommandApi implements CommandExecutor, TabCompleter {
-    private Map<@NotNull String, @NotNull List<@NotNull String>> tabCompletions;
     private List<@NotNull Object> commandHandlers;
 
     private de.finnp.simplecommandmanager.Command[] commands;
 
     public CommandApi(@NotNull final de.finnp.simplecommandmanager.Command[] commands) {
-        tabCompletions = new HashMap<>();
         commandHandlers = new ArrayList<>();
         setCommands(commands);
     }
@@ -40,14 +37,6 @@ public class CommandApi implements CommandExecutor, TabCompleter {
 
     public void registerCommandHandler(@NotNull final Object commandHandler) {
         commandHandlers.add(commandHandler);
-    }
-
-    public void addTabCompletion(@NotNull final String argument, @NotNull final List<@NotNull String> completions) {
-        tabCompletions.put(argument, completions);
-    }
-
-    public Map<@NotNull String, @NotNull List<@NotNull String>> getTabCompletions() {
-        return tabCompletions;
     }
 
     @Override
@@ -79,7 +68,7 @@ public class CommandApi implements CommandExecutor, TabCompleter {
                     } else {
                         method.invoke(command, new CommandManager(commandSender, args, label));
                     }
-                } catch (IllegalAccessException | InvocationTargetException e) {
+                } catch (final IllegalAccessException | InvocationTargetException e) {
                     throw new RuntimeException(e);
                 }
                 return true;
@@ -91,17 +80,19 @@ public class CommandApi implements CommandExecutor, TabCompleter {
 
     @Override
     public List<@NotNull String> onTabComplete(@NotNull final CommandSender commandSender, @NotNull final Command bukkitCommand, @NotNull final String label, @NotNull final String[] args) {
-        List<@NotNull String> completions = new ArrayList<>();
-        for (int i = 0; i < args.length - 1; i++) {
-            final List<@NotNull String> argumentCompletions = getTabCompletions().get(args[i]);
-            if (argumentCompletions != null) {
-                completions.addAll(argumentCompletions);
+        for (final de.finnp.simplecommandmanager.Command command: getCommands()) {
+            for (final Method method: command.getClass().getDeclaredMethods()) {
+                if (!method.isAnnotationPresent(CommandHandler.class) &&
+                        method.isAnnotationPresent(TabCompletion.class) &&
+                        method.getParameterTypes().length != 1) continue;
+                if (!method.getAnnotation(CommandHandler.class).value().equalsIgnoreCase(label)) continue;
+                final TabCompletion completion = method.getAnnotation(TabCompletion.class);
+                final de.finnp.simplecommandmanager.annotation.List[] lists = completion.value();
+                int i = args.length;
+                if (lists[i - 1] == null) continue;
+                return Arrays.asList(lists[i - 1].value());
             }
         }
-        if (!completions.isEmpty()) {
-            return StringUtil.copyPartialMatches(args[args.length - 1], completions, new ArrayList<>());
-        }
-
         return new ArrayList<>();
     }
 }

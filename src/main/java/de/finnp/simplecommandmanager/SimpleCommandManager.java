@@ -1,5 +1,7 @@
 package de.finnp.simplecommandmanager;
 
+import de.finnp.simplecommandmanager.annotation.CommandHandler;
+import de.finnp.simplecommandmanager.annotation.CommandProperties;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;

@@ -2,9 +2,6 @@ package de.finnp.simplecommandmanager;
 
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 public class CommandManager {
 
@@ -42,24 +39,5 @@ public class CommandManager {
 
     private void setCommandApi(@NotNull final CommandApi commandApi) {
         this.commandApi=commandApi;
-    }
-
-
-    public void setTabCompletion(@NotNull final String argument, @NotNull final List<String> completions) {
-        getCommandApi().addTabCompletion(argument, completions);
-    }
-
-    public void setTabCompletion(@NotNull final String argument,@NotNull final String... completions) {
-        getCommandApi().addTabCompletion(argument, Arrays.asList(completions));
-    }
-
-    @NotNull
-    public List<@NotNull String> getTabCompletion(@NotNull final String argument) {
-        return commandApi.getTabCompletions().get(argument);
-    }
-
-    @NotNull
-    public Map<@NotNull String, @NotNull List<@NotNull String>> getTabCompletions(@NotNull final String argument) {
-        return  commandApi.getTabCompletions();
     }
 }
