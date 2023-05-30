@@ -25,7 +25,9 @@ public class CommandApi implements CommandExecutor, TabCompleter {
         commandHandlers = new ArrayList<>();
         setCommands(commands);
     }
-    public CommandApi() {}
+
+    public CommandApi() {
+    }
 
     @NotNull
     private de.finnp.simplecommandmanager.Command[] getCommands() {
@@ -54,20 +56,25 @@ public class CommandApi implements CommandExecutor, TabCompleter {
             for (final Method method: command.getClass().getDeclaredMethods()) {
                 if (!method.isAnnotationPresent(CommandHandler.class) &&
                         method.getParameterTypes().length != 1) continue;
-                if(!method.getAnnotation(CommandHandler.class).value().equalsIgnoreCase(label)) continue;
+                if (!method.getAnnotation(CommandHandler.class).value().equalsIgnoreCase(label)) continue;
                 try {
                     if (method.isAnnotationPresent(CommandProperties.class)) {
                         final CommandProperties properties = method.getAnnotation(CommandProperties.class);
                         switch (properties.type()) {
                             case UNIVERSAL -> {
                                 method.invoke(command, new CommandManager(commandSender, args, label));
-                            }case PLAYER -> {
-                                if (commandSender instanceof Player) method.invoke(command, new CommandManager(commandSender, args, label));
+                            }
+                            case PLAYER -> {
+                                if (commandSender instanceof Player)
+                                    method.invoke(command, new CommandManager(commandSender, args, label));
                                 else commandSender.sendMessage(properties.invalidSender());
-                            }case CONSOLE -> {
-                                if (!(commandSender instanceof Player)) method.invoke(command, new CommandManager(commandSender, args, label));
+                            }
+                            case CONSOLE -> {
+                                if (!(commandSender instanceof Player))
+                                    method.invoke(command, new CommandManager(commandSender, args, label));
                                 else commandSender.sendMessage(properties.invalidSender());
-                            }default -> throw new IllegalStateException("Unexpected value: " + properties.type());
+                            }
+                            default -> throw new IllegalStateException("Unexpected value: " + properties.type());
                         }
                     } else {
                         method.invoke(command, new CommandManager(commandSender, args, label));
@@ -84,12 +91,17 @@ public class CommandApi implements CommandExecutor, TabCompleter {
 
     @Override
     public List<@NotNull String> onTabComplete(@NotNull final CommandSender commandSender, @NotNull final Command bukkitCommand, @NotNull final String label, @NotNull final String[] args) {
-        if (args.length >= 1) {
-            final List<@NotNull String> completions = getTabCompletions().get(args[0]);
-            if (completions != null) {
-                return StringUtil.copyPartialMatches(args[args.length - 1], completions, new ArrayList<>());
+        List<@NotNull String> completions = new ArrayList<>();
+        for (int i = 0; i < args.length - 1; i++) {
+            final List<@NotNull String> argumentCompletions = getTabCompletions().get(args[i]);
+            if (argumentCompletions != null) {
+                completions.addAll(argumentCompletions);
             }
         }
-        return null;
+        if (!completions.isEmpty()) {
+            return StringUtil.copyPartialMatches(args[args.length - 1], completions, new ArrayList<>());
+        }
+
+        return new ArrayList<>();
     }
 }
