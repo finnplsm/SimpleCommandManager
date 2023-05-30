@@ -11,13 +11,13 @@ public class CommandManager {
     private final CommandSender sender;
     private final String[] arguments;
     private final String label;
-    private final Map<String, List<String>> tabCompletions;
+    private CommandApi commandApi;
 
-    public CommandManager(@NotNull final CommandSender sender, @NotNull final String[] arguments, @NotNull final String label, @NotNull final Map<String, List<String>> tabCompletions) {
+    public CommandManager(@NotNull final CommandSender sender, @NotNull final String[] arguments, @NotNull final String label) {
         this.sender = sender;
         this.arguments = arguments;
         this.label = label;
-        this.tabCompletions = tabCompletions;
+        setCommandApi(new CommandApi());
     }
 
     @NotNull
@@ -35,16 +35,31 @@ public class CommandManager {
         return label;
     }
 
-    public void setTabCompletion(@NotNull final String argument,@NotNull final List<String> completions) {
-        tabCompletions.put(argument, completions);
+    @NotNull
+    private CommandApi getCommandApi() {
+        return commandApi;
+    }
+
+    private void setCommandApi(@NotNull final CommandApi commandApi) {
+        this.commandApi=commandApi;
+    }
+
+
+    public void setTabCompletion(@NotNull final String argument, @NotNull final List<String> completions) {
+        getCommandApi().addTabCompletion(argument, completions);
     }
 
     public void setTabCompletion(@NotNull final String argument,@NotNull final String... completions) {
-        tabCompletions.put(argument, Arrays.asList(completions));
+        getCommandApi().addTabCompletion(argument, Arrays.asList(completions));
     }
 
     @NotNull
-    public List<String> getTabCompletion(@NotNull final String argument) {
-        return tabCompletions.get(argument);
+    public List<@NotNull String> getTabCompletion(@NotNull final String argument) {
+        return commandApi.getTabCompletions().get(argument);
+    }
+
+    @NotNull
+    public Map<@NotNull String, @NotNull List<@NotNull String>> getTabCompletions(@NotNull final String argument) {
+        return  commandApi.getTabCompletions();
     }
 }

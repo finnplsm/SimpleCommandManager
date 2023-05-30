@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public class CommandApi implements CommandExecutor, TabCompleter {
-    private final Map<@NotNull String, @NotNull List<@NotNull String>> tabCompletions;
-    private final List<@NotNull Object> commandHandlers;
+    private Map<@NotNull String, @NotNull List<@NotNull String>> tabCompletions;
+    private List<@NotNull Object> commandHandlers;
 
     private de.finnp.simplecommandmanager.Command[] commands;
 
@@ -25,6 +25,7 @@ public class CommandApi implements CommandExecutor, TabCompleter {
         commandHandlers = new ArrayList<>();
         setCommands(commands);
     }
+    public CommandApi() {}
 
     @NotNull
     private de.finnp.simplecommandmanager.Command[] getCommands() {
@@ -39,8 +40,12 @@ public class CommandApi implements CommandExecutor, TabCompleter {
         commandHandlers.add(commandHandler);
     }
 
-    public void addTabCompletion(@NotNull final String argument, @NotNull final List<String> completions) {
+    public void addTabCompletion(@NotNull final String argument, @NotNull final List<@NotNull String> completions) {
         tabCompletions.put(argument, completions);
+    }
+
+    public Map<@NotNull String, @NotNull List<@NotNull String>> getTabCompletions() {
+        return tabCompletions;
     }
 
     @Override
@@ -55,17 +60,17 @@ public class CommandApi implements CommandExecutor, TabCompleter {
                         final CommandProperties properties = method.getAnnotation(CommandProperties.class);
                         switch (properties.type()) {
                             case UNIVERSAL -> {
-                                method.invoke(command, new CommandManager(commandSender, args, label, tabCompletions));
+                                method.invoke(command, new CommandManager(commandSender, args, label));
                             }case PLAYER -> {
-                                if (commandSender instanceof Player) method.invoke(command, new CommandManager(commandSender, args, label, tabCompletions));
+                                if (commandSender instanceof Player) method.invoke(command, new CommandManager(commandSender, args, label));
                                 else commandSender.sendMessage(properties.invalidSender());
                             }case CONSOLE -> {
-                                if (!(commandSender instanceof Player)) method.invoke(command, new CommandManager(commandSender, args, label, tabCompletions));
+                                if (!(commandSender instanceof Player)) method.invoke(command, new CommandManager(commandSender, args, label));
                                 else commandSender.sendMessage(properties.invalidSender());
                             }default -> throw new IllegalStateException("Unexpected value: " + properties.type());
                         }
                     } else {
-                        method.invoke(command, new CommandManager(commandSender, args, label, tabCompletions));
+                        method.invoke(command, new CommandManager(commandSender, args, label));
                     }
                 } catch (IllegalAccessException | InvocationTargetException e) {
                     throw new RuntimeException(e);
@@ -78,9 +83,9 @@ public class CommandApi implements CommandExecutor, TabCompleter {
 
 
     @Override
-    public List<String> onTabComplete(@NotNull final CommandSender commandSender, @NotNull final Command bukkitCommand, @NotNull final String label, @NotNull final String[] args) {
-        if (args.length > 1) {
-            final List<String> completions = tabCompletions.get(args[0]);
+    public List<@NotNull String> onTabComplete(@NotNull final CommandSender commandSender, @NotNull final Command bukkitCommand, @NotNull final String label, @NotNull final String[] args) {
+        if (args.length >= 1) {
+            final List<@NotNull String> completions = getTabCompletions().get(args[0]);
             if (completions != null) {
                 return StringUtil.copyPartialMatches(args[args.length - 1], completions, new ArrayList<>());
             }
