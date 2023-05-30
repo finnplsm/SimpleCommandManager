@@ -47,8 +47,9 @@ public class CommandApi implements CommandExecutor, TabCompleter {
     public boolean onCommand(@NotNull final CommandSender commandSender, @NotNull final Command bukkitCommand, @NotNull final String label, @NotNull final String[] args) {
         for (final de.finnp.simplecommandmanager.Command command: getCommands()) {
             for (final Method method: command.getClass().getDeclaredMethods()) {
-                if (!method.isAnnotationPresent(CommandHandler.class) ||
-                        method.getParameterTypes().length != 1) continue;
+                if (!method.isAnnotationPresent(CommandHandler.class) &&
+                        method.getParameterTypes().length != 1 &&
+                        method.getAnnotation(CommandHandler.class).value().equalsIgnoreCase(label)) continue;
                 try {
                     if (method.isAnnotationPresent(CommandProperties.class)) {
                         final CommandProperties properties = method.getAnnotation(CommandProperties.class);
