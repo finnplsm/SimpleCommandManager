@@ -11,11 +11,9 @@ public @interface CommandProperties {
     CommandType type() default CommandType.UNIVERSAL;
     String usage() default "/%label%";
     String permission() default "";
-    String[] aliases() default "";
+    String[] aliases() default {""};
+    String description() default "";
+    String invalidSender() default "This command can only be executed from the console!";
+    String permissionMessage() default "You do not have permission to run this command!";
 
-    enum CommandType {
-        UNIVERSAL,
-        PLAYER,
-        CONSOLE;
-    }
 }

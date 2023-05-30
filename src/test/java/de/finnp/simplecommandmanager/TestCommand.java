@@ -1,10 +1,11 @@
-import de.finnp.simplecommandmanager.*;
+package de.finnp.simplecommandmanager;
+
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
-public class PrintCommand implements Command{
-    @CommandHandler("print")
-    @CommandProperties(type = CommandProperties.CommandType.PLAYER, usage = "/print", aliases = {"pr", "printmessage"})
+public class TestCommand implements Command{
+    @CommandHandler("test")
+    @CommandProperties(type = CommandType.UNIVERSAL, usage = "/test", aliases = {"testcommand", "t"})
     private void onCommand(@NotNull final CommandManager commandManager){
         final String label=commandManager.getLabel();
         final String[] args=commandManager.getArguments();
