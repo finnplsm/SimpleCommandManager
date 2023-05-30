@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.logging.Level;
 
 public class SimpleCommandManager {
     private Plugin plugin;
@@ -75,6 +76,7 @@ public class SimpleCommandManager {
                 }
                 try {
                     pluginConfig.save(pluginFile);
+                    getPlugin().getLogger().log(Level.FINE,pluginConfig.saveToString());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
