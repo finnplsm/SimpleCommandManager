@@ -14,8 +14,8 @@ public class SimpleCommandManager {
 
     public SimpleCommandManager(@NotNull final Plugin plugin, @NotNull final Command[] commands) {
         setPlugin(plugin);
-        setCommandApi(new CommandApi());
         setCommands(commands);
+        setCommandApi(new CommandApi(getCommands()));
         registerCommands();
     }
 
